@@ -9,17 +9,21 @@ import subprocess
 import sys
 import os
 
-def run_command(command, description):
-    """Выполняет команду в командной строке с обработкой ошибок"""
+
+def run_command(command: str, description: str) -> bool:
+    """Выполняет команду в командной строке с обработкой ошибок
+    и вывода результата
+    command: str - команда для выполнения
+    description: str - описание команды для вывода в консоль"""
     print(f"\n[INFO] {description}")
     print(f"[CMD] {command}")
 
     try:
         result = subprocess.run(
-            command, 
-            shell=True, 
-            check=True, 
-            capture_output=True, 
+            command,
+            shell=True,
+            check=True,
+            capture_output=True,
             text=True
         )
         print(f"[SUCCESS] {description} выполнено успешно")
@@ -33,12 +37,31 @@ def run_command(command, description):
             print(f"[ERROR] {e.stderr}")
         return False
 
-def check_root_privileges():
+
+def check_root_privileges() -> None:
     """Проверяет, запущен ли скрипт с правами root"""
     if os.geteuid() != 0:
         print("[ERROR] Скрипт должен быть запущен с правами root (sudo)")
         print("[INFO] Запустите: sudo python3 install_packages.py")
         sys.exit(1)
+
+
+def print_report(packages: list[str], failed_packages: list[str]) -> None:
+    print("\n" + "=" * 60)
+    print("ИТОГОВЫЙ ОТЧЕТ")
+    print("=" * 60)
+
+    print("\n[INFO] Установленные пакеты:")
+    for package in packages:
+        if package not in failed_packages:
+            print(f"  ✓ {package}")
+        else:
+            print(f"  ✗ {package} (ошибка установки)")
+        if failed_packages:
+            print(f"[WARNING] Следующие пакеты не удалось установить: {', '.join(failed_packages)}")
+        else:
+            print("[SUCCESS] Все пакеты установлены успешно!")
+
 
 def main():
     """Основная функция установки пакетов"""
@@ -50,7 +73,7 @@ def main():
     check_root_privileges()
 
     # Список пакетов для установки
-    packages = ['ufw', 'sudo', 'openssh-server', 'ssh']
+    packages = ['ufw', 'sudo', 'openssh-server', 'ssh', "mc"]
 
     print(f"[INFO] Будут установлены следующие пакеты: {', '.join(packages)}")
 
@@ -60,8 +83,9 @@ def main():
         sys.exit(1)
 
     # 2. Обновление установленных пакетов
-    if not run_command("apt upgrade -y", "Обновление установленных пакетов"):
-        print("[WARNING] Обновление пакетов завершилось с ошибками")
+    if input("Обновить установленные пакеты? (y/n): ").lower() != "y":
+        if not run_command("apt upgrade -y", "Обновление установленных пакетов"):
+            print("[WARNING] Обновление пакетов завершилось с ошибками")
 
     # 3. Установка каждого пакета
     failed_packages = []
@@ -71,49 +95,14 @@ def main():
         if not run_command(command, f"Установка пакета {package}"):
             failed_packages.append(package)
 
-    # 4. Настройка SSH (включение и запуск службы)
-    print("\n" + "=" * 40)
-    print("НАСТРОЙКА SSH")
-    print("=" * 40)
-
-    run_command("systemctl enable ssh", "Включение службы SSH в автозагрузку")
-    run_command("systemctl start ssh", "Запуск службы SSH")
-    run_command("systemctl status ssh --no-pager", "Проверка статуса SSH")
-
-    # 5. Базовая настройка UFW
-    print("\n" + "=" * 40)
-    print("НАСТРОЙКА UFW")
-    print("=" * 40)
-
-    run_command("ufw --force enable", "Включение UFW")
-    run_command("ufw allow ssh", "Разрешение SSH через UFW")
-    run_command("ufw status", "Проверка статуса UFW")
-
-    # 6. Итоговый отчет
-    print("\n" + "=" * 60)
-    print("ИТОГОВЫЙ ОТЧЕТ")
-    print("=" * 60)
-
-    if failed_packages:
-        print(f"[WARNING] Следующие пакеты не удалось установить: {', '.join(failed_packages)}")
-    else:
-        print("[SUCCESS] Все пакеты установлены успешно!")
-
-    print("\n[INFO] Установленные пакеты:")
-    for package in packages:
-        if package not in failed_packages:
-            print(f"  ✓ {package}")
-        else:
-            print(f"  ✗ {package} (ошибка установки)")
-
-    print("\n[INFO] Настроенные службы:")
-    print("  ✓ SSH (openssh-server) - включен и запущен")
-    print("  ✓ UFW - включен с разрешением SSH")
+    # 4. Итоговый отчет
+    print_report(packages, failed_packages)
 
     print("\n[INFO] Рекомендуемые следующие шаги:")
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")
     print("  3. Проверьте настройки UFW: ufw status verbose")
+
 
 if __name__ == "__main__":
     main()

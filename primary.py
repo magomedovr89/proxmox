@@ -57,10 +57,10 @@ def print_report(packages: list[str], failed_packages: list[str]) -> None:
             print(f"  ✓ {package}")
         else:
             print(f"  ✗ {package} (ошибка установки)")
-        if failed_packages:
-            print(f"[WARNING] Следующие пакеты не удалось установить: {', '.join(failed_packages)}")
-        else:
-            print("[SUCCESS] Все пакеты установлены успешно!")
+    if failed_packages:
+        print(f"[WARNING] Следующие пакеты не удалось установить: {', '.join(failed_packages)}")
+    else:
+        print("[SUCCESS] Все пакеты установлены успешно!")
 
 
 def main():

@@ -110,16 +110,35 @@ def main():
     if input("Настроим UFW? (y/n): ").lower() == "y":
         if not run_command("ufw enable", "Включение UFW"):
             print("[WARNING] Не удалось включить UFW")
+            exit(1)
         else:
             print("[INFO] Настройка UFW:")
             ports = input("Введите порты для открытия через UFW (пример: 22 80 443): ").split()
             for port in ports:
                 run_command(f"ufw allow {port}", f"Разрешение порта {port}")
         print("Проверка UFW")
-        run_command("ufw status verbose", "Проверка UFW")
+        if not run_command("ufw status verbose", "Проверка UFW"):
+            print("[WARNING] Не удалось включить UFW")
+            exit(1)
+    import description
+    # 6. Настройка SSH
+    if input("Настроим SSH? (y/n): ").lower() == "y":
+        if input(description.PubkeyAuthentication):
+
+        # PubkeyAuthentication yes
+        # PasswordAuthentication no принудительная работа только по ключам ликвидирует риск перебора паролей и фишинга
+        # PermitRootLogin no: запрет прямого входа root снижает критичность брутфорса и ошибок конфигурации.
+        # AllowUsers / AllowGroups: белые списки пользователей / групп с доступом к SSH резко уменьшают площадь атаки.
+        # MaxAuthTries 3 и LoginGraceTime 30–60 s: ограничение попыток и времени входа против атак перебора.
+        # X11Forwarding no, AllowTcpForwarding no, AllowAgentForwarding no: отключить пересылки по умолчанию, включая точечно при необходимости.
+        # Port 2222(или иной нестандартный): не является мерой криптозащиты, но снижает шум от массовых сканеров и нагрузку на логи.
+        # Ciphers / MACs / KexAlgorithms: оставить только современные наборы, согласованные с клиентами в инвентаре, для консистентной криптополитики.
+        # ClientAliveInterval 300
+        # ClientAliveCountMax 2–3: корректная уборка «висящих» сессий и контроль активности.
+        # StrictModes yes и корректные права ~ /.ssh: сервер откажет при небезопасных правах, что предотвращает эскалацию из‑за небрежности.
+
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")
-    print("  3. Проверьте настройки UFW: ufw status verbose")
 
 
 if __name__ == "__main__":

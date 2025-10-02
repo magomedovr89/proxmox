@@ -15,6 +15,7 @@ def run_command(command: str, description: str) -> bool:
     и вывода результата
     command: str - команда для выполнения
     description: str - описание команды для вывода в консоль"""
+
     print(f"\n[INFO] {description}")
     print(f"[CMD] {command}")
 
@@ -40,6 +41,7 @@ def run_command(command: str, description: str) -> bool:
 
 def check_root_privileges() -> None:
     """Проверяет, запущен ли скрипт с правами root"""
+
     if os.geteuid() != 0:
         print("[ERROR] Скрипт должен быть запущен с правами root (sudo)")
         print("[INFO] Запустите: sudo python3 install_packages.py")
@@ -47,6 +49,10 @@ def check_root_privileges() -> None:
 
 
 def print_report(packages: list[str], failed_packages: list[str]) -> None:
+    """Выводит отчет о результатах установки пакетов
+    packages: list[str] - список установленных пакетов
+    failed_packages: list[str] - список неустановленных пакетов"""
+
     print("\n" + "=" * 60)
     print("ИТОГОВЫЙ ОТЧЕТ")
     print("=" * 60)
@@ -73,7 +79,7 @@ def main():
     check_root_privileges()
 
     # Список пакетов для установки
-    packages = ['ufw', 'sudo', 'openssh-server', 'ssh', "mc"]
+    packages = ['ufw', 'sudo', 'openssh-server', 'ssh', "mc", "htop"]
 
     print(f"[INFO] Будут установлены следующие пакеты: {', '.join(packages)}")
 
@@ -98,7 +104,19 @@ def main():
     # 4. Итоговый отчет
     print_report(packages, failed_packages)
 
-    print("\n[INFO] Рекомендуемые следующие шаги:")
+
+
+    # 5.Настройка UFW
+    if input("Настроим UFW? (y/n): ").lower() == "y":
+        if not run_command("ufw enable", "Включение UFW"):
+            print("[WARNING] Не удалось включить UFW")
+        else:
+            print("[INFO] Настройка UFW:")
+            ports = input("Введите порты для открытия через UFW (пример: 22 80 443): ").split()
+            for port in ports:
+                run_command(f"ufw allow {port}", f"Разрешение порта {port}")
+        print("Проверка UFW")
+        run_command("ufw status verbose", "Проверка UFW")
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")
     print("  3. Проверьте настройки UFW: ufw status verbose")

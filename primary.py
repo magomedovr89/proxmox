@@ -125,6 +125,9 @@ def main():
     # 6. Настройка SSH
     if input("Настроим SSH? (y/n): ").lower() == "y":
         ssh_processing.ProcessingConfigFile()
+        if input("Внести изменения в систему (y/n) - ").lower() == "y":
+            if not run_command("cp /backup/sshconfig /", "Перезапуск SSH"):
+                print("[WARNING] Не удалось перезапустить SSH")
 
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")

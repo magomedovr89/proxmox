@@ -87,7 +87,7 @@ def main():
     print(f"[INFO] Будут установлены следующие пакеты: {', '.join(packages)}")
 
     # 1. Обновление списка пакетов
-    if input("Начать установку пакетов? (y/n): ").lower() != "y":
+    if input("Начать установку пакетов? (y/n): ").lower() == "y":
 
         if not run_command("apt update", "Обновление списка пакетов"):
             print("[ERROR] Не удалось обновить список пакетов")
@@ -134,11 +134,16 @@ def main():
                     f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now().strftime('%Y_%m_%d_%H_%M')}",
                     "Бэкап SSH конфигурации"):
                 print("[WARNING] Не удалось создать бэкап SSH конфигурации")
+            if not run_command(f"cp /backup/ssh_config /etc/ssh/sshd_config","Копирование файла конфигурации"):
+                print("[WARNING] Не удалось создать SSH конфигурации")
         else:
             print("Внесите изменения в SSH конфигурации вручную")
             print("Файл находится в директории backup")
             print("=" * 60)
     print("=" * 60)
+
+
+
     if input("Настроим sudo? (y/n) - ").lower() == "y":
         user = input("Введите имя пользователя - ")
         if input("Создать пользователя? (y/n) - ").lower() == "y":
@@ -149,7 +154,7 @@ def main():
             file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
         print(f"sudo настройки для пользователя {user} созданы")
     print("=" * 60)
-    print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
+
     print("  2. Настройте SSH ключи для безопасного доступа")
 
 

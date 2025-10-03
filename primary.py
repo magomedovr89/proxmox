@@ -128,7 +128,7 @@ def main():
         if input("Внести изменения в систему (y/n) - ").lower() == "y":
             if not run_command("mkdir /etc/ssh/backup", "Создание директории для бэкапа SSH конфигурации"):
                 print("[WARNING] Не удалось создать директорию для бэкапа SSH конфигурации")
-            if not run_command(f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now()}", "Бэкап SSH конфигурации"):
+            if not run_command(f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now().strftime('%Y_%m_%d_%H_%M')}", "Бэкап SSH конфигурации"):
                 print("[WARNING] Не удалось создать бэкап SSH конфигурации")
         else:
             print("Внесите изменения в SSH конфигурации вручную")

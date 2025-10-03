@@ -12,6 +12,7 @@ import os
 import ssh_processing
 from datetime import datetime
 
+
 def run_command(command: str, description: str) -> bool:
     """Выполняет команду в командной строке с обработкой ошибок
     и вывода результата
@@ -106,8 +107,6 @@ def main():
     # 4. Итоговый отчет
     print_report(packages, failed_packages)
 
-
-
     # 5.Настройка UFW
     if input("Настроим UFW? (y/n): ").lower() == "y":
         if not run_command("ufw enable", "Включение UFW"):
@@ -126,14 +125,30 @@ def main():
     if input("Настроим SSH? (y/n): ").lower() == "y":
         ssh_processing.ProcessingConfigFile()
         if input("Внести изменения в систему (y/n) - ").lower() == "y":
-            if not run_command("mkdir /etc/ssh/backup", "Создание директории для бэкапа SSH конфигурации"):
+            if not run_command("mkdir -p /etc/ssh/backup", "Создание директории для бэкапа SSH конфигурации"):
                 print("[WARNING] Не удалось создать директорию для бэкапа SSH конфигурации")
-            if not run_command(f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now().strftime('%Y_%m_%d_%H_%M')}", "Бэкап SSH конфигурации"):
+            print("=" * 60)
+            if not run_command(
+                    f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now().strftime('%Y_%m_%d_%H_%M')}",
+                    "Бэкап SSH конфигурации"):
                 print("[WARNING] Не удалось создать бэкап SSH конфигурации")
         else:
             print("Внесите изменения в SSH конфигурации вручную")
             print("Файл находится в директории backup")
-
+            print("=" * 60)
+    print("=" * 60)
+    if input("Настроим sudo? (y/n) - ").lower() == "y":
+        user = input("Введите имя пользователя - ")
+        if input("Создать пользователя? (y/n) - ").lower() == "y":
+            if not run_command(f"adduser user {user}", "Создание пользователя"):
+                print("Не удалось создать пользователя")
+            if not run_command(f"usermod -aG sudo {user}", "Добавление пользователя в группу sudo"):
+                print("Не удалось добавить пользователя в группу sudo")
+        else:
+            with open(f"/etc/sudoers.d/{user}", "w") as file:
+                file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
+            print(f"sudo настройки для пользователя {user} созданы")
+    print("=" * 60)
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")
 

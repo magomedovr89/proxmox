@@ -87,25 +87,27 @@ def main():
     print(f"[INFO] Будут установлены следующие пакеты: {', '.join(packages)}")
 
     # 1. Обновление списка пакетов
-    if not run_command("apt update", "Обновление списка пакетов"):
-        print("[ERROR] Не удалось обновить список пакетов")
-        sys.exit(1)
+    if input("Обновить список пакетов? (y/n): ").lower() != "y":
 
-    # 2. Обновление установленных пакетов
-    if input("Обновить установленные пакеты? (y/n): ").lower() != "y":
-        if not run_command("apt upgrade -y", "Обновление установленных пакетов"):
-            print("[WARNING] Обновление пакетов завершилось с ошибками")
+        if not run_command("apt update", "Обновление списка пакетов"):
+            print("[ERROR] Не удалось обновить список пакетов")
+            sys.exit(1)
 
-    # 3. Установка каждого пакета
-    failed_packages = []
+        # 2. Обновление установленных пакетов
+        if input("Обновить установленные пакеты? (y/n): ").lower() != "y":
+            if not run_command("apt upgrade -y", "Обновление установленных пакетов"):
+                print("[WARNING] Обновление пакетов завершилось с ошибками")
 
-    for package in packages:
-        command = f"apt install -y {package}"
-        if not run_command(command, f"Установка пакета {package}"):
-            failed_packages.append(package)
+        # 3. Установка каждого пакета
+        failed_packages = []
 
-    # 4. Итоговый отчет
-    print_report(packages, failed_packages)
+        for package in packages:
+            command = f"apt install -y {package}"
+            if not run_command(command, f"Установка пакета {package}"):
+                failed_packages.append(package)
+
+        # 4. Итоговый отчет
+        print_report(packages, failed_packages)
 
     # 5.Настройка UFW
     if input("Настроим UFW? (y/n): ").lower() == "y":

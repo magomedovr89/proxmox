@@ -10,7 +10,7 @@ import sys
 import os
 
 import ssh_processing
-
+from datetime import datetime
 
 def run_command(command: str, description: str) -> bool:
     """Выполняет команду в командной строке с обработкой ошибок
@@ -126,8 +126,13 @@ def main():
     if input("Настроим SSH? (y/n): ").lower() == "y":
         ssh_processing.ProcessingConfigFile()
         if input("Внести изменения в систему (y/n) - ").lower() == "y":
-            if not run_command("cp /backup/sshconfig /", "Перезапуск SSH"):
-                print("[WARNING] Не удалось перезапустить SSH")
+            if not run_command("mkdir /etc/ssh/backup", "Создание директории для бэкапа SSH конфигурации"):
+                print("[WARNING] Не удалось создать директорию для бэкапа SSH конфигурации")
+            if not run_command(f"cp /etc/ssh/sshd_config /etc/ssh/backup/ssh_config_{datetime.now()}", "Бэкап SSH конфигурации"):
+                print("[WARNING] Не удалось создать бэкап SSH конфигурации")
+        else:
+            print("Внесите изменения в SSH конфигурации вручную")
+            print("Файл находится в директории backup")
 
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")

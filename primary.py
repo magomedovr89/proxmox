@@ -141,11 +141,11 @@ def main():
         user = input("Введите имя пользователя - ")
         if input("Создать пользователя? (y/n) - ").lower() == "y":
             os.system(f"adduser {user}")
-            os.system(f"usermod -aG sudo {user}")
-            os.system(f"/etc/sudoers.d/{user}")
-            with open(f"/etc/sudoers.d/{user}", "w") as file:
-                file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
-            print(f"sudo настройки для пользователя {user} созданы")
+        os.system(f"usermod -aG sudo {user}")
+        os.system(f"/etc/sudoers.d/{user}")
+        with open(f"/etc/sudoers.d/{user}", "w") as file:
+            file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
+        print(f"sudo настройки для пользователя {user} созданы")
     print("=" * 60)
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")

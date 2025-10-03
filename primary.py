@@ -9,6 +9,8 @@ import subprocess
 import sys
 import os
 
+import ssh_processing
+
 
 def run_command(command: str, description: str) -> bool:
     """Выполняет команду в командной строке с обработкой ошибок
@@ -120,22 +122,9 @@ def main():
         if not run_command("ufw status verbose", "Проверка UFW"):
             print("[WARNING] Не удалось включить UFW")
             exit(1)
-    import description
     # 6. Настройка SSH
     if input("Настроим SSH? (y/n): ").lower() == "y":
-        if input(description.PubkeyAuthentication):
-
-        # PubkeyAuthentication yes
-        # PasswordAuthentication no принудительная работа только по ключам ликвидирует риск перебора паролей и фишинга
-        # PermitRootLogin no: запрет прямого входа root снижает критичность брутфорса и ошибок конфигурации.
-        # AllowUsers / AllowGroups: белые списки пользователей / групп с доступом к SSH резко уменьшают площадь атаки.
-        # MaxAuthTries 3 и LoginGraceTime 30–60 s: ограничение попыток и времени входа против атак перебора.
-        # X11Forwarding no, AllowTcpForwarding no, AllowAgentForwarding no: отключить пересылки по умолчанию, включая точечно при необходимости.
-        # Port 2222(или иной нестандартный): не является мерой криптозащиты, но снижает шум от массовых сканеров и нагрузку на логи.
-        # Ciphers / MACs / KexAlgorithms: оставить только современные наборы, согласованные с клиентами в инвентаре, для консистентной криптополитики.
-        # ClientAliveInterval 300
-        # ClientAliveCountMax 2–3: корректная уборка «висящих» сессий и контроль активности.
-        # StrictModes yes и корректные права ~ /.ssh: сервер откажет при небезопасных правах, что предотвращает эскалацию из‑за небрежности.
+        ssh_processing.ProcessingConfigFile()
 
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")

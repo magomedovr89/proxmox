@@ -91,11 +91,24 @@ class ProcessingConfigFile:
 
         if input(default_parameters + "Настроить по умолчанию? (y/n) - ").lower() == "y":
             self.generate_config_file_with_params()
+        else:
+            self.refactoring_config_file()
 
-    def generate_config_file_with_params(self, params):
+    def generate_config_file_with_params(self):
         with open("ssh_config", "w") as file:
             file.write(header)
             file.write((sep + tab).join(
                 [" ".join([key, self.params[key]['default'], ' #', self.params[key]['description']]) for key in
                  self.params.keys()])
             )
+    def refactoring_config_file(self):
+        with open("ssh_config", "w") as file:
+            file.write(header)
+            for key in self.params.keys():
+                if input(f"Параметр по умолчанию - {key} {self.params[key]['default']}\tизменить? (y/n) - ").lower() == "y":
+                    self.params[key]['default'] = input(f"Введите значение для параметра {key} - ")
+            file.write((sep + tab).join(
+                [" ".join([key, self.params[key]['default'], ' #', self.params[key]['description']]) for key in
+                 self.params.keys()])
+            )
+

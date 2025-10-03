@@ -140,14 +140,16 @@ def main():
     if input("Настроим sudo? (y/n) - ").lower() == "y":
         user = input("Введите имя пользователя - ")
         if input("Создать пользователя? (y/n) - ").lower() == "y":
-            if not run_command(f"adduser user {user}", "Создание пользователя"):
-                print("Не удалось создать пользователя")
-            if not run_command(f"usermod -aG sudo {user}", "Добавление пользователя в группу sudo"):
-                print("Не удалось добавить пользователя в группу sudo")
-        else:
-            with open(f"/etc/sudoers.d/{user}", "w") as file:
-                file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
-            print(f"sudo настройки для пользователя {user} созданы")
+            os.system(f"adduser {user}")
+        #
+        #     if not run_command(f"adduser {user}", "Создание пользователя"):
+        #         print("Не удалось создать пользователя")
+        #     if not run_command(f"usermod -aG sudo {user}", "Добавление пользователя в группу sudo"):
+        #         print("Не удалось добавить пользователя в группу sudo")
+        # else:
+        #     with open(f"/etc/sudoers.d/{user}", "w") as file:
+        #         file.write(f"{user} ALL=(ALL) NOPASSWD:ALL")
+        #     print(f"sudo настройки для пользователя {user} созданы")
     print("=" * 60)
     print("  1. Настройте пользователей для sudo: usermod -aG sudo <username>")
     print("  2. Настройте SSH ключи для безопасного доступа")
